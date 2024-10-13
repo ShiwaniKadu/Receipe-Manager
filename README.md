@@ -62,28 +62,6 @@ A simple and intuitive **Recipe Manager** web application built with **Node.js**
 | PUT    | `/receipe/:id`      | Update an existing recipe |
 | DELETE | `/receipe/:id`      | Delete a recipe           |
 
-## 🎨 Screenshots
-
-![Home Page](./screenshots/homepage.png)
-*Home page showing the list of recipes*
-
-![Add Recipe](./screenshots/add-recipe.png)
-*Add a new recipe form*
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/your-username/recipe-manager/issues) or open a new issue.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -m 'Add some new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Open a pull request
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙌 Acknowledgements
 
 Thanks to all the contributors and the open-source community for their valuable tools and resources!
