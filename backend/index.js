@@ -1,9 +1,17 @@
-import express, { response } from 'express';
-import { PORT, mongoDBURL } from './config.js';
-import mongoose from 'mongoose';
+import express from 'express';
+import cors from 'cors';
 import receipeRoute from './routes/ReceipeRoute.js';
+import userRoute from './routes/userRoutes.js';
+import UserModel from './models/User.js';
+import UserController from './controllers/userController.js';
+import mongoose from 'mongoose';
+import {JWT_SECRET_KEY , PORT, mongoDBURL} from './config/connectdb.js';
 const app = express();
+
+
 app.use(express.json());
+app.use(cors());
+
 
 // Middleware for handling CORS POLICY
 // Option 1: Allow All Origin with Default of Cors(*)
@@ -23,6 +31,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/receipe', receipeRoute);
+
+app.use('/user', userRoute);
+
 
 mongoose
     .connect(mongoDBURL, { useNewUrlParser: true, useUnifiedTopology: true })
