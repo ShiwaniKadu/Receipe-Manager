@@ -11,9 +11,7 @@ class UserController {
     if (user) {
       return res.status(400).send({ "status": "failed", "message": "Email already exists" });
     } else {
-      // Ensure all fields are filled
       if (name && email && password && password_confirmation && tc) {
-        // Check if passwords match
         if (password === password_confirmation) {
           try {
             // Generate salt and hash the password
@@ -42,11 +40,9 @@ class UserController {
             return res.status(500).send({ "status": "failed", "message": "Unable to Register" });
           }
         } else {
-          // Passwords don't match
           return res.status(400).send({ "status": "failed", "message": "Password and Confirm Password don't match" });
         }
       } else {
-        // Missing fields
         return res.status(400).send({ "status": "failed", "message": "All fields are required" });
       }
     }
@@ -105,13 +101,7 @@ class UserController {
         const token = jwt.sign({ userID: user._id }, secret, { expiresIn: '15m' })
         const link = `http://127.0.0.1:3000/api/user/reset/${user._id}/${token}`
         console.log(link)
-        // // Send Email
-        // let info = await transporter.sendMail({
-        //   from: process.env.EMAIL_FROM,
-        //   to: user.email,
-        //   subject: "GeekShop - Password Reset Link",
-        //   html: `<a href=${link}>Click Here</a> to Reset Your Password`
-        // })
+        
         res.send({ "status": "success", "message": "Password Reset Email Sent... Please Check Your Email" })
       } else {
         res.send({ "status": "failed", "message": "Email doesn't exists" })
