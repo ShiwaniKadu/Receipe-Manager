@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import UserModel from '../models/User.js';
-import { JWT_SECRET_KEY } from '../config/connectdb.js'; // Ensure this is properly imported
+import { JWT_SECRET_KEY } from '../config/connectdb.js'; 
 
 const checkUserAuth = async (req, res, next) => {
   let token;

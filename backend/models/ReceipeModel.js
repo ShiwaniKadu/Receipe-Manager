@@ -21,3 +21,6 @@ const receipeSchema = new mongoose.Schema({
 const Receipe = mongoose.model('Receipe', receipeSchema);
 
 export default Receipe;
+
+
+

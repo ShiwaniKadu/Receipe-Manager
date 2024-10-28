@@ -1,10 +1,13 @@
 
 import express from 'express';
 import Receipe from '../models/ReceipeModel.js';
+import checkUserAuth from '../middlewares/auth-middleware.js';
 
 const router = express.Router();
-//Route for Save a new Receipe 
 
+router.use(checkUserAuth);
+
+//Route for Save a new Receipe 
 router.post('/', async (req, res) => {
     try {
         if (
@@ -26,7 +29,8 @@ router.post('/', async (req, res) => {
             prepTime: req.body.prepTime,
             cookTime: req.body.cookTime,
             servings: req.body.servings,
-            difficulty: req.body.difficulty || 'Medium'
+            difficulty: req.body.difficulty || 'Medium',
+            user: req.user._id
         });
 
         const receipe = await newReceipe.save();
@@ -37,12 +41,16 @@ router.post('/', async (req, res) => {
     }
 });
 //Route for Get All Receipe from database
-router.get('/', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
-        const receipes = await Receipe.find(); // Change findById to find()
+        const { id } = req.params;
+        const receipe = await Receipe.findOne({ _id: id, user: req.user._id });
+        if (!receipe) {
+            return res.status(404).json({ message: "Recipe not found or not authorized" });
+        } 
         return res.status(200).json({
-            count: receipes.length,
-            data: receipes
+            count: receipe.length,
+            data: receipe
         });
     } catch (error) {
         console.log('Error:', error);
@@ -55,9 +63,11 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const receipes = await Receipe.findById({ _id: id, user: req.user._id }); 
 
-
-        const receipes = await Receipe.findById(id); 
+        if(!receipes){
+            return res.status(404).json({ message: "Recipe not found or not authorized" });
+        }
         return res.status(200).json({
             count : receipes.length,
             data : receipes
@@ -71,49 +81,36 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-        if (
-            !req.body.title || 
-            !req.body.ingredients || 
-            !req.body.instructions || 
-            !req.body.prepTime || 
-            !req.body.cookTime
-        ) {
-            return res.status(400).send({
-                message: "Send all required fields"
-            });
-        }
-
         const { id } = req.params;
-        const result = await Receipe.findByIdAndUpdate(
-            id, 
-            { 
-                title: req.body.title,
-                ingredients: req.body.ingredients,
-                instructions: req.body.instructions,
-                prepTime: req.body.prepTime,
-                cookTime: req.body.cookTime,
-                servings: req.body.servings,
-                difficulty: req.body.difficulty || 'Medium'
-            }, 
-            { new: true } 
-        );
+        const receipe = await Receipe.findOne({ _id: id, user: req.user._id });
 
-        if (!result) {
-            return res.status(404).json({ message: "Receipe not found" });
+        if (!receipe) {
+            return res.status(404).json({ message: "Recipe not found or not authorized" });
         }
 
-        return res.status(200).send(result); // Send updated recipe back
+        const updatedData = {
+            title: req.body.title,
+            ingredients: req.body.ingredients,
+            instructions: req.body.instructions,
+            prepTime: req.body.prepTime,
+            cookTime: req.body.cookTime,
+            servings: req.body.servings,
+            difficulty: req.body.difficulty || 'Medium',
+        };
+
+        const updatedReceipe = await Receipe.findByIdAndUpdate(id, updatedData, { new: true });
+        res.status(200).send(updatedReceipe);
     } catch (error) {
-        console.log('Error:', error);
         return res.status(500).send({ message: "Internal Server Error", error: error.message });
     }
 });
+
 //Route for Delete Receipe from database
 
 router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params; 
-        const result = await Receipe.findOneAndDelete({ _id: id }); 
+        const result = await Receipe.findOneAndDelete({ _id: id, user: req.user._id }); 
 
         if (!result) {
             return res.status(404).json({ message: "Receipe not found" }); 

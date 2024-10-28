@@ -2,10 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import receipeRoute from './routes/ReceipeRoute.js';
 import userRoute from './routes/userRoutes.js';
-import UserModel from './models/User.js';
-import UserController from './controllers/userController.js';
 import mongoose from 'mongoose';
-import {JWT_SECRET_KEY , PORT, mongoDBURL} from './config/connectdb.js';
+import {PORT, mongoDBURL} from './config/connectdb.js';
 const app = express();
 
 
@@ -26,7 +24,7 @@ app.use(cors());
 //     })
 // )
 
-app.get('/', (req, res) => {
+app.get('/', (res) => {
     return res.status(200).send('Hello World');
 });
 
