@@ -41,13 +41,10 @@ router.post('/', async (req, res) => {
     }
 });
 //Route for Get All Receipe from database
-router.get('/:id', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const { id } = req.params;
-        const receipe = await Receipe.findOne({ _id: id, user: req.user._id });
-        if (!receipe) {
-            return res.status(404).json({ message: "Recipe not found or not authorized" });
-        } 
+        const receipe = await Receipe.findOne({ user: req.user._id });
         return res.status(200).json({
             count: receipe.length,
             data: receipe
