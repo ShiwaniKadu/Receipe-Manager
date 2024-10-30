@@ -41,13 +41,13 @@ router.post('/', async (req, res) => {
     }
 });
 //Route for Get All Receipe from database
-router.get('/', async (req, res) => {
+router.get('/', checkUserAuth, async (req, res) => {
     try {
-        const { id } = req.params;
-        const receipe = await Receipe.findOne({ user: req.user._id });
+        console.log('Authenticated user ID:', req.user._id);
+        const receipes = await Receipe.find({ user: req.user._id });
         return res.status(200).json({
-            count: receipe.length,
-            data: receipe
+            count: receipes.length,
+            data: receipes
         });
     } catch (error) {
         console.log('Error:', error);
@@ -56,18 +56,25 @@ router.get('/', async (req, res) => {
 });
 
 
+
 //Route for Get One Receipe from database
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const receipes = await Receipe.findById({ _id: id, user: req.user._id }); 
+        console.log('ID received:', id); 
 
-        if(!receipes){
+        const isValidId = mongoose.Types.ObjectId.isValid(id);
+        if (!isValidId) {
+            return res.status(400).json({ message: "Invalid ID format." });
+        }
+
+        const receipe = await Receipe.findOne({ _id: id, user: req.user._id }); 
+
+        if (!receipe) {
             return res.status(404).json({ message: "Recipe not found or not authorized" });
         }
         return res.status(200).json({
-            count : receipes.length,
-            data : receipes
+            data: receipe
         });
     } catch (error) {
         console.log('Error:', error);
