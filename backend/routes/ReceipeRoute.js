@@ -2,6 +2,7 @@
 import express from 'express';
 import Receipe from '../models/ReceipeModel.js';
 import checkUserAuth from '../middlewares/auth-middleware.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ router.post('/', async (req, res) => {
     }
 });
 //Route for Get All Receipe from database
-router.get('/', checkUserAuth, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         console.log('Authenticated user ID:', req.user._id);
         const receipes = await Receipe.find({ user: req.user._id });
@@ -55,42 +56,38 @@ router.get('/', checkUserAuth, async (req, res) => {
     }
 });
 
+const checkRecipeOwnership = async (id, userId) => {
+    const recipe = await Receipe.findOne({ _id: id, user: userId });
+    if (!recipe) {
+        throw new Error('Recipe not found or not authorized');
+    }
+    return recipe;
+};
 
-
-//Route for Get One Receipe from database
+// Get a single recipe by ID
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        console.log('ID received:', id); 
 
-        const isValidId = mongoose.Types.ObjectId.isValid(id);
-        if (!isValidId) {
-            return res.status(400).json({ message: "Invalid ID format." });
+        // Check if the recipe belongs to the authenticated user
+        const recipe = await Receipe.findOne({ _id: id, user: req.user._id });
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found or unauthorized' });
         }
 
-        const receipe = await Receipe.findOne({ _id: id, user: req.user._id }); 
-
-        if (!receipe) {
-            return res.status(404).json({ message: "Recipe not found or not authorized" });
-        }
-        return res.status(200).json({
-            data: receipe
-        });
+        return res.status(200).json({ data: recipe });
     } catch (error) {
         console.log('Error:', error);
         return res.status(500).send({ message: "Internal Server Error", error: error.message });
     }
 });
-//Route for Update Receipe from database
 
+
+// Update recipe
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const receipe = await Receipe.findOne({ _id: id, user: req.user._id });
-
-        if (!receipe) {
-            return res.status(404).json({ message: "Recipe not found or not authorized" });
-        }
+        const receipe = await checkRecipeOwnership(id, req.user._id);
 
         const updatedData = {
             title: req.body.title,

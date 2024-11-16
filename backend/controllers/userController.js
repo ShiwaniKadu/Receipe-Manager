@@ -4,45 +4,45 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET_KEY } from '../config/connectdb.js'; 
 class UserController {
   static userRegistration = async (req, res) => {
-    const { name, email, password, password_confirmation, tc } = req.body;
+    const { name, email, password, password_confirmation } = req.body;
 
     // Check if user already exists
     const user = await UserModel.findOne({ email: email });
     if (user) {
+      console.log("Email already exists")
       return res.status(400).send({ "status": "failed", "message": "Email already exists" });
+      
     } else {
-      if (name && email && password && password_confirmation && tc) {
+      if (name && email && password && password_confirmation) {
         if (password === password_confirmation) {
           try {
-            // Generate salt and hash the password
             const salt = await bcrypt.genSalt(10);
             const hashPassword = await bcrypt.hash(password, salt);
 
-            // Create new user document
             const doc = new UserModel({
               name: name,
               email: email,
               password: hashPassword,
-              tc: tc
             });
 
-            // Save user to the database
             await doc.save();
 
             // Retrieve saved user and generate JWT
             const saved_user = await UserModel.findOne({ email: email });
-            const token = jwt.sign({ userID: saved_user._id }, JWT_SECRET_KEY, { expiresIn: '5d' });
+            // const token = jwt.sign({ userID: saved_user._id }, JWT_SECRET_KEY, { expiresIn: '5d' });
 
             // Send success response with token
-            return res.status(201).send({ "status": "success", "message": "Registration Successful", "token": token });
+            return res.status(201).send({ "status": "success", "message": "Registration Successful" });
           } catch (error) {
             console.log(error);
             return res.status(500).send({ "status": "failed", "message": "Unable to Register" });
           }
         } else {
+          console.log("passs and confirm pass don't exists")
           return res.status(400).send({ "status": "failed", "message": "Password and Confirm Password don't match" });
         }
       } else {
+        console.log("All field required")
         return res.status(400).send({ "status": "failed", "message": "All fields are required" });
       }
     }
