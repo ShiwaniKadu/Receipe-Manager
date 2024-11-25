@@ -103,8 +103,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
       difficulty: 'Easy',
     });
   }
-
-  logout(): void {
-    this.authService.logout();
-  }
 }

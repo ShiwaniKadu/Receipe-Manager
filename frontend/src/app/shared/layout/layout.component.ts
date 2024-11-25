@@ -18,4 +18,7 @@ export class LayoutComponent implements OnInit{
       this.isLoggedIn = this.authService.isLoggedIn
     },{injector: this.injector})
   }
+  logout(): void {
+    this.authService.logout();
+  }
 }
