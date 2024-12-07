@@ -14,5 +14,6 @@ export const routes: Routes = [
             { path: 'login',canActivate:[guestGuard], component: LoginComponent},
             { path: 'register',canActivate:[guestGuard], component: RegisterComponent}
         ]
-    }
+    },
+    { path: '**', redirectTo: 'dashboard' }
 ];

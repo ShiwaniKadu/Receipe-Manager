@@ -1,67 +1,59 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ApiResponse, LoginPayload, RegisterPayload, User } from '../model/common.model';
-import { LocalStorage } from '../constants/constants';
-import { ApiEndpoint } from '../constants/constants'; 
-import { map, catchError } from 'rxjs/operators';
+import { ApiEndpoint } from '../constants/constants';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  isLoggedIn = false;
+  private token: string | null = null;
 
-  constructor(private _http: HttpClient, private router: Router) {
-    if (this.getUserToken()) {
-      this.isLoggedIn = true;
-    }
+  constructor(private http: HttpClient, private router: Router) {}
+
+  register(payload: RegisterPayload): Observable<ApiResponse<User>> {
+    return this.http.post<ApiResponse<User>>(ApiEndpoint.Auth.Register, payload).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  register(payload: RegisterPayload) {
-    return this._http.post<ApiResponse<User>>(`${ApiEndpoint.Auth.Register}`, payload);
-  }
-
-  login(payload: LoginPayload) {
-    return this._http.post<ApiResponse<User>>(`${ApiEndpoint.Auth.Login}`, payload).pipe(
-      map((response) => {
-        if (response.status && response.token) {
-          localStorage.setItem(LocalStorage.token, response.token);
-          this.isLoggedIn = true;
-          return response;
-        } else {
-          throw new Error('Login failed'); 
+  login(payload: LoginPayload): Observable<ApiResponse<{ token: string; user: User }>> {
+    return this.http.post<ApiResponse<{ token: string; user: User }>>(ApiEndpoint.Auth.Login, payload).pipe(
+      tap((response) => {
+        if (response.status) {
+          console.log("Token:", response);
+          this.token = response.token;
+          this.router.navigate(['/dashboard']);
         }
       }),
-      catchError(error => {
-        return of(null); 
-      })
+      catchError(this.handleError)
     );
   }
 
-  me() {
-    return this._http.get<ApiResponse<User>>(`${ApiEndpoint.Auth.me}`)
-    .pipe(
-      catchError((error) => {
-        console.error('Error fetching user data:', error);
-        return of({ status: false, message: 'Failed to fetch user data', data: null }); 
-      })
+  getLoggedUser(): Observable<ApiResponse<User>> {
+    return this.http.get<ApiResponse<User>>(ApiEndpoint.Auth.LoggedUser).pipe(
+      catchError(this.handleError)
     );
   }
-  
 
-  getUserToken() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return localStorage.getItem('USER_TOKEN');
-    } else {
-      return null;
-    }
+  logout(): void {
+    this.token = null;
+    this.router.navigate(['/login']);
   }
 
-  logout() {
-    localStorage.removeItem(LocalStorage.token);
-    this.isLoggedIn = false;
-    this.router.navigate(['login']);
+  getToken(): string | null {
+    return this.token;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.token;
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    console.error('Error:', error);
+    return throwError(() => new Error(error.error.message || 'An error occurred.'));
   }
 }

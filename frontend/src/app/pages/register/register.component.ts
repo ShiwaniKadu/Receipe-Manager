@@ -1,57 +1,47 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms'
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrls: ['./register.component.css'], // Corrected to `styleUrls`
 })
 export class RegisterComponent {
   form: FormGroup;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.form = this.fb.group({
-      name: new FormControl('', [Validators.required]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)]), 
-      password_confirmation: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      name: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      password_confirmation: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
+  // Custom validator for matching passwords
+  get passwordMismatch() {
+    return this.form.get('password')?.value !== this.form.get('password_confirmation')?.value;
+  }
+
   onSubmit() {
-    if (this.form.valid) {
+    if (this.form.valid && !this.passwordMismatch) {
       this.authService.register(this.form.value).subscribe({
-        next: (response) => {
-          this.router.navigate(['login']);
-        },
+        next: () => this.router.navigate(['login']),
         error: (err) => {
-          console.error('Registration error:', err);
-          alert('Registration failed. Please try again later.');
-        }
+          console.error('Registration failed:', err);
+          alert(`Registration failed: ${err.error?.message || 'Unknown error'}`);
+        },
       });
+    } else if (this.passwordMismatch) {
+      alert('Passwords do not match.');
     } else {
-      alert('Please fill in all the required fields correctly.');
+      alert('Please fill out all required fields correctly.');
     }
-  }
-
-  get name() {
-    return this.form.get('name');
-  }
-
-  get email() {
-    return this.form.get('email');
-  }
-
-  get password() {
-    return this.form.get('password');
-  }
-
-  get password_confirmation() { 
-    return this.form.get('password_confirmation');
   }
 }

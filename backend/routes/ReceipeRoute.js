@@ -1,4 +1,3 @@
-
 import express from 'express';
 import Receipe from '../models/ReceipeModel.js';
 import checkUserAuth from '../middlewares/auth-middleware.js';
@@ -9,7 +8,7 @@ const router = express.Router();
 router.use(checkUserAuth);
 
 //Route for Save a new Receipe 
-router.post('/', async (req, res) => {
+router.post('createreceipe/', async (req, res) => {
     try {
         if (
             !req.body.title || 
@@ -42,7 +41,7 @@ router.post('/', async (req, res) => {
     }
 });
 //Route for Get All Receipe from database
-router.get('/', async (req, res) => {
+router.get('getreceipe/', async (req, res) => {
     try {
         console.log('Authenticated user ID:', req.user._id);
         const receipes = await Receipe.find({ user: req.user._id });
@@ -65,7 +64,7 @@ const checkRecipeOwnership = async (id, userId) => {
 };
 
 // Get a single recipe by ID
-router.get('/:id', async (req, res) => {
+router.get('getreceipe_id/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -84,7 +83,7 @@ router.get('/:id', async (req, res) => {
 
 
 // Update recipe
-router.put('/:id', async (req, res) => {
+router.put('updatereceipe/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const receipe = await checkRecipeOwnership(id, req.user._id);
@@ -108,7 +107,7 @@ router.put('/:id', async (req, res) => {
 
 //Route for Delete Receipe from database
 
-router.delete("/:id", async (req, res) => {
+router.delete("deletereceipe_id/:id", async (req, res) => {
     try {
         const { id } = req.params; 
         const result = await Receipe.findOneAndDelete({ _id: id, user: req.user._id }); 

@@ -18,7 +18,7 @@ export interface ApiResponse<T>{
     status?: boolean;
     message: string;
     error?: string;
-    token?: string
+    token?: string;
     data : T;
 }
 

@@ -1,50 +1,44 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms'
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
   form: FormGroup;
-  authService = inject(AuthService)
-  router = inject(Router)
+  isLoading = false; 
 
-
-  constructor(private fb: FormBuilder){
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.form = this.fb.group({
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required]),
-
-    })
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+    });
   }
 
   onSubmit() {
     if (this.form.valid) {
+      this.isLoading = true;
       this.authService.login(this.form.value).subscribe({
-        next: (response) => {
-          if (response && response.token) {
-            this.router.navigate(['dashboard']);
-          } else {
-          }
+        next: () => {
+          this.isLoading = false;
+          this.router.navigate(['dashboard']); 
         },
         error: (err) => {
-          console.error('Login error', err);
-        }
+          this.isLoading = false;
+          console.error('Login failed:', err);
+          alert(`Login failed: ${err.error?.message || 'Unknown error'}`);
+        },
       });
+    } else {
+      alert('Please fill out the form correctly.');
     }
   }
-  get email() {
-    return this.form.get('email');
-  }
-  
-  get password() {
-    return this.form.get('password');
-  }
-  
 }
