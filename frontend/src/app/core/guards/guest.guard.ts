@@ -12,19 +12,21 @@ export class guestGuard implements CanActivate {
 
   canActivate(): Observable<boolean> {
     return new Observable(observer => {
-      this.authService.getLoggedUser().subscribe(
-        (response) => {
-          if (response.status) {
-            this.router.navigate(['dashboard']);
-            observer.next(false);
-          } else {
-            observer.next(true);
-          }
-        },
-        () => {
-          observer.next(true);
-        }
-      );
+      observer.next(!this.authService.getToken())
+
+      // this.authService.getLoggedUser().subscribe(
+      //   (response) => {
+      //     if (response.status) {
+      //       this.router.navigate(['dashboard']);
+      //       observer.next(false);
+      //     } else {
+      //       observer.next(true);
+      //     }
+      //   },
+      //   () => {
+      //     observer.next(true);
+      //   }
+      // );
     });
   }
 }

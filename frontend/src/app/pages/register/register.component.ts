@@ -10,7 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css'], // Corrected to `styleUrls`
+  styleUrls: ['./register.component.css'], 
 })
 export class RegisterComponent {
   form: FormGroup;

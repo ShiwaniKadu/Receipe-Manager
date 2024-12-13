@@ -44,3 +44,4 @@ mongoose
     .catch((error) => {
         console.error('Error connecting to database:', error);
     });
+    

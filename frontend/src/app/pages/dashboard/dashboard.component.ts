@@ -34,20 +34,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.authService.getLoggedUser().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (response) => {
-        if (response?.data) {
-          this.user = response.data;
-        } else {
-          this.user = null;
-          this.router.navigate(['/login']);
-        }
-      },
-      error: (err) => {
-        console.error('Authentication failed', err);
-        this.router.navigate(['/login']);
-      },
-    });
+    // this.authService.getLoggedUser().pipe(takeUntil(this.destroy$)).subscribe({
+    //   next: (response) => {
+    //     debugger
+    //     console.log('response', response)
+    //     if (response?.data) {
+    //       this.user = response.data;
+    //     } else {
+    //       this.user = null;
+    //       this.router.navigate(['/login']);
+    //     }
+    //   },
+    //   error: (err) => {
+    //     console.error('Authentication failed', err);
+    //     this.router.navigate(['/login']);
+    //   },
+    // });
 
     this.getReceipes();
   }
@@ -71,7 +73,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getReceipes(): void {
     this.receipeService.getRecipes().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (recipes: ReceipeModel[]) => (this.receipeList = recipes),
+      next: (recipes: any) => {
+        console.log('recipes', recipes)
+
+          this.receipeList = recipes.data
+        },
       error: (error) => console.error('Error fetching recipes', error),
     });
   }

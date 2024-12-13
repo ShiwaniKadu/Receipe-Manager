@@ -14,7 +14,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 })
 export class LoginComponent {
   form: FormGroup;
-  isLoading = false; 
+  isLoading = false;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.form = this.fb.group({
@@ -29,7 +29,13 @@ export class LoginComponent {
       this.authService.login(this.form.value).subscribe({
         next: () => {
           this.isLoading = false;
-          this.router.navigate(['dashboard']); 
+          this.router.navigate(['/dashboard'])
+          .then(s=>{
+            console.log('s', s)
+          })
+          .catch(e=>{
+            console.log(e)
+          });
         },
         error: (err) => {
           this.isLoading = false;

@@ -22,11 +22,10 @@ export class AuthService {
 
   login(payload: LoginPayload): Observable<ApiResponse<{ token: string; user: User }>> {
     return this.http.post<ApiResponse<{ token: string; user: User }>>(ApiEndpoint.Auth.Login, payload).pipe(
-      tap((response) => {
+      tap((response: any) => {
         if (response.status) {
           console.log("Token:", response);
           this.token = response.token;
-          this.router.navigate(['/dashboard']);
         }
       }),
       catchError(this.handleError)
