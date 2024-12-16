@@ -11,7 +11,7 @@ A simple and intuitive **Recipe Manager** web application built with **Node.js**
 
 ## 🛠️ Technologies Used
 
-- **Frontend**: HTML, CSS, React, Axios
+- **Frontend**: HTML, CSS, Angular
 - **Backend**: Node.js, Express
 - **Database**: MongoDB, Mongoose
 - **Other**: CORS, RESTful APIs
